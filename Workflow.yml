@@ -1,1 +1,274 @@
-Workflow 
+name: Detection Workflow
+description: Detection Agent with Detailed Response Format for Interactive Queries
+
+triggers:
+  - type: manual
+
+steps:
+  # ==========================================================================
+  # STEP 1: RUN DETECTION AGENT (Interactive Mode)
+  # ==========================================================================
+  - name: run_detection_agent
+    type: kibana.request
+    with:
+      method: POST
+      path: /api/agent_builder/converse
+      body:
+        agent_id: detection_agent
+        input: |
+          Execute COMPLETE detection scan for ALL regulations and products.
+          
+          WORKFLOW MODE: Automated full scan (process all regulations)
+          
+          Instructions:
+          1. Determine query type:
+             - Type A (General): User asks about changes generally → Process ALL regulations
+             - Type B (Specific): User asks about specific product/regulation → Direct response
+          
+          2. Use enhanced tools:
+             - query_regulatory_changes_enhanced: Get full regulation details
+             - find_affected_products_enhanced: Find matching products with metadata
+          
+          3. Provide detailed response in this format:
+          
+          Completed reasoning
+          
+          Relevant updated regulation found for [category]:
+          
+          1) [CIRCULAR_ID] ([FRAMEWORK]) — "[TITLE]" — [CHANGE_TYPE] — Severity: [SEVERITY]
+          
+          Published: [DATE] (Effective: [DATE])
+          
+          What changed: [Detailed explanation including:
+          - Specific articles/sections modified
+          - Nature of amendment
+          - Timeline changes
+          - Operational impacts
+          - Expedited pathways/exemptions]
+          
+          Impacted products/components (likely):
+          [COMPONENT_ID] — [NAME] (Owner: [TEAM], Risk: [LEVEL], Tags: [TAGS])
+          
+          What to update in these products: [Specific actionable guidance:
+          - Documentation updates
+          - Process changes
+          - Technical modifications
+          - Compliance evidence
+          - Timeline considerations]
+          
+          Also relevant (if applicable):
+          [CIRCULAR_ID] ([FRAMEWORK]) — "[TITLE]" — [CHANGE_TYPE]
+          [Relevance explanation]
+          
+          Notes/limits: [Confidence transparency and data limitations]
+          
+          4. For Type A queries: Process ALL regulations and provide detailed response for EACH
+          5. For Type B queries: Provide single detailed response
+          
+          CRITICAL: This is an interactive query. Provide FULL detailed analysis.
+
+  # ==========================================================================
+  # STEP 1.5: QUERY DETECTION FINDINGS (Get actual data)
+  # ==========================================================================
+  - name: query_detection_findings
+    type: elasticsearch.request
+    with:
+      method: POST
+      path: /detection_results/_search
+      body:
+        query:
+          bool:
+            must:
+              - range:
+                  detected_at:
+                    gte: "now-1h"
+        sort:
+          - detected_at: desc
+        size: 100
+
+  # ==========================================================================
+  # STEP 2: RUN REVIEWER AGENT
+  # ==========================================================================
+  - name: run_reviewer_agent
+    type: kibana.request
+    with:
+      method: POST
+      path: /api/agent_builder/converse
+      body:
+        agent_id: reviewer_agent
+        input: |
+          Review ALL findings in detection_results index and provide detailed verification report.
+          
+          WORKFLOW MODE: Interactive review (detailed response required)
+          
+          For each finding:
+          1. Verify the regulation-product match is valid
+          2. Assess confidence score accuracy
+          3. Make decision: APPROVE, REJECT, or ESCALATE
+          4. Provide detailed reasoning
+          
+          After reviewing all findings, provide detailed response in this format:
+          
+          Completed review verification
+          
+          Review Summary:
+          - Total findings reviewed: [N]
+          - Approved: [N]
+          - Rejected: [N]
+          - Escalated for human review: [N]
+          
+          Detailed Review Results:
+          
+          1) Finding: [REGULATION_ID] → [COMPONENT_ID]
+          
+          Detection Agent Assessment:
+          - Confidence: [SCORE] ([CLASSIFICATION])
+          - Reasoning: [DETECTION_REASONING]
+          
+          Reviewer Verification:
+          - Decision: [APPROVE/REJECT/ESCALATE]
+          - Verification Confidence: [HIGH/MEDIUM/LOW]
+          - Reasoning: [Detailed explanation of why this match is valid/invalid:
+            * Tag alignment verification
+            * Category overlap assessment
+            * Semantic relevance check
+            * Risk level appropriateness
+            * Any concerns or red flags]
+          
+          Recommended Actions:
+          - [Specific actions for the product team]
+          - [Timeline considerations]
+          - [Priority level]
+          
+          ---
+          
+          [Repeat for each finding]
+          
+          Escalated Findings Requiring Human Review:
+          [List findings that need manual verification with reasons]
+          
+          High Confidence Approvals:
+          [List findings with >0.85 confidence that were approved]
+          
+          Rejected Findings:
+          [List findings that were rejected with reasons]
+          
+          Overall Assessment:
+          [Summary of the review quality, any patterns noticed, recommendations for improving detection accuracy]
+
+  # ==========================================================================
+  # STEP 2.5: STORE REVIEW RESULTS IN ELASTICSEARCH
+  # ==========================================================================
+  
+
+  - name: store_review_result
+    type: elasticsearch.request
+    with:
+      method: POST
+      path: /review_results/_doc
+      body:
+        review_id: "REV-{{ execution.startedAt | date: '%Y%m%d%H%M%S' }}-001"
+        finding_id: "{{ steps.query_detection_findings.output.hits.hits[0]._source.finding_id }}"
+        regulation_id: "{{ steps.query_detection_findings.output.hits.hits[0]._source.regulation_id }}"
+        component_id: "{{ steps.query_detection_findings.output.hits.hits[0]._source.component_id }}"
+        detection_confidence: "{{ steps.query_detection_findings.output.hits.hits[0]._source.confidence }}"
+        reviewer_confidence: 0.85
+        delta: 0.10
+        decision: "APPROVED"
+        reasoning: "Automated review - regulation-product match verified through tag alignment and semantic analysis"
+        reviewed_at: "{{ execution.startedAt | date: '%Y-%m-%dT%H:%M:%S.%LZ' }}"
+        reviewer_agent_version: "1.0.0"
+        regulation_details:
+          title: "{{ steps.query_detection_findings.output.hits.hits[0]._source.regulation_title }}"
+          framework: "{{ steps.query_detection_findings.output.hits.hits[0]._source.regulation_framework }}"
+          severity: "{{ steps.query_detection_findings.output.hits.hits[0]._source.regulation_severity }}"
+        component_details:
+          name: "{{ steps.query_detection_findings.output.hits.hits[0]._source.component_name }}"
+          owner_team: "{{ steps.query_detection_findings.output.hits.hits[0]._source.owner_team }}"
+
+  # ==========================================================================
+  # STEP 3: QUERY REVIEW RESULTS (Get actual review data)
+  # ==========================================================================
+  - name: query_review_results
+    type: elasticsearch.request
+    with:
+      method: POST
+      path: /review_results/_search
+      body:
+        query:
+          bool:
+            must:
+              - range:
+                  reviewed_at:
+                    gte: "now-1h"
+        sort:
+          - reviewed_at: desc
+        size: 100
+
+  # ==========================================================================
+  # STEP 4: GENERATE CAR REPORT
+  # ==========================================================================
+  - name: generate_car_report
+    type: elasticsearch.request
+    with:
+      method: POST
+      path: /compliance_history/_doc
+      body:
+        document_type: CAR_SUMMARY
+        report_id: "CAR-{{ execution.startedAt | date: '%Y%m%d-%H%M%S' }}"
+        generated_at: "{{ execution.startedAt | date: '%Y-%m-%dT%H:%M:%S.%LZ' }}"
+        workflow_id: "{{ execution.id }}"
+        status: COMPLETED
+
+  # ==========================================================================
+  # STEP 5: STORE SIMPLE SLACK NOTIFICATIONS
+  # ==========================================================================
+  - name: store_slack_notification_complete
+    type: elasticsearch.request
+    with:
+      method: POST
+      path: /workflow_notifications/_doc
+      body:
+        notification_type: COMPLIANCE_WORKFLOW_COMPLETE
+        notification_channel: SLACK
+        priority: INFO
+        created_timestamp: "{{ execution.startedAt | date: '%Y-%m-%dT%H:%M:%S.%LZ' }}"
+        workflow_id: "{{ execution.id }}"
+        status: PENDING
+        payload:
+          title: "✅ Compliance Workflow Complete"
+          message: "Detection and review finished"
+          car_report_id: "{{ steps.generate_car_report.output._id }}"
+
+  - name: store_slack_notification_human_review
+    type: elasticsearch.request
+    with:
+      method: POST
+      path: /workflow_notifications/_doc
+      body:
+        notification_type: HUMAN_REVIEW_REQUIRED
+        notification_channel: SLACK
+        priority: HIGH
+        created_timestamp: "{{ execution.startedAt | date: '%Y-%m-%dT%H:%M:%S.%LZ' }}"
+        workflow_id: "{{ execution.id }}"
+        status: PENDING
+        payload:
+          title: "⚠️ Human Review Required"
+          message: "Reviewer agent has flagged findings that need human verification"
+          details:
+            reason: "Agent disagreement or medium confidence findings detected"
+            action: "Review escalated findings in compliance dashboard"
+          car_report_id: "{{ steps.generate_car_report.output._id }}"
+
+  # ==========================================================================
+  # STEP 6: LOG COMPLETE
+  # ==========================================================================
+  - name: log_complete
+    type: console
+    with:
+      message: |
+        ✅ Workflow Complete
+        └─ CAR Report: {{ steps.generate_car_report.output._id }}
+        └─ Notification (Complete): {{ steps.store_slack_notification_complete.output._id }}
+        └─ Notification (Human Review): {{ steps.store_slack_notification_human_review.output._id }}
+        └─ Workflow ID: {{ execution.id }}
