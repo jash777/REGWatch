@@ -114,9 +114,9 @@ Most AI systems hide uncertainty. RegWatch **embraces it**.
 
 ## 🎬 Demo
 
-**[Watch  Demo Video → https://www.youtube.com/watch?v=82SnRw6onUY**
+**[Watch Demo Video →](https://www.youtube.com/watch?v=82SnRw6onUY)**
 
-[![RegWatch Demo](https://img.youtube.com/vi/82SnRw6onUY/maxresdefault.jpg)](https://www.youtube.com/watch?v=82SnRw6onUY)
+[![RegWatch Demo](https://img.youtube.com/vi/82SnRw6onUY/hqdefault.jpg)](https://www.youtube.com/watch?v=82SnRw6onUY)
 
 **Key moments:**
 - 0:35 - See the disagreement in action (68% vs 25%)
