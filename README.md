@@ -114,9 +114,9 @@ Most AI systems hide uncertainty. RegWatch **embraces it**.
 
 ## 🎬 Demo
 
-**[Watch 2:30 Demo Video →](https://youtu.be/YOUR_VIDEO_ID)**
+**[Watch  Demo Video → https://www.youtube.com/watch?v=82SnRw6onUY**
 
-[![RegWatch Demo](https://img.youtube.com/vi/YOUR_VIDEO_ID/maxresdefault.jpg)](https://youtu.be/YOUR_VIDEO_ID)
+[![RegWatch Demo](https://img.youtube.com/vi/82SnRw6onUY/maxresdefault.jpg)](https://www.youtube.com/watch?v=82SnRw6onUY)
 
 **Key moments:**
 - 0:35 - See the disagreement in action (68% vs 25%)
@@ -159,30 +159,9 @@ Most AI systems hide uncertainty. RegWatch **embraces it**.
 
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/yourusername/regwatch.git
+git clone https://github.com/jash777/REGWatch
 cd regwatch
 ```
-
-### 2. Setup Environment
-```bash
-cp .env.example .env
-# Edit .env with your Elastic Cloud credentials:
-# - ES_CLOUD_ID
-# - ES_API_KEY
-```
-
-### 3. Run One-Command Setup
-```bash
-chmod +x scripts/setup_full_stack.sh
-./scripts/setup_full_stack.sh
-```
-
-This will:
-- ✅ Create indexes with mappings
-- ✅ Create ingest pipelines
-- ✅ Set up Inference API endpoint
-- ✅ Ingest sample data (24 regulations, 32 components)
-- ✅ Create data views in Kibana
 
 **Time:** ~5 minutes
 
@@ -264,12 +243,6 @@ steps:
       document: "{{ steps.run_reviewer.output }}"
 ```
 
-### 6. Test the System
-
-```bash
-# Run test query
-python scripts/test_agents.py
-```
 
 ---
 
@@ -279,29 +252,10 @@ python scripts/test_agents.py
 regwatch/
 ├── README.md
 ├── LICENSE
-├── .env.example
-├── .gitignore
 │
-├── scripts/
-│   ├── setup_full_stack.sh          # One-command setup
-│   ├── ingest_with_pipelines.py     # Data ingestion
-│   ├── test_agents.py                # Test agent responses
-│   └── generate_sample_data.py      # Sample regulations/components
-│
-├── data/
-│   ├── regulations/                  # Sample regulations (GDPR, Basel-III, etc.)
-│   └── components/                   # Sample product components
-│
-├── docs/
-│   ├── ARCHITECTURE.md               # System architecture
-│   ├── WORKFLOW_GUIDE.md             # Workflow setup
-│   ├── AGENT_PROMPTS.md              # Agent configuration
-│   └── DEMO_SCRIPT.md                # Demo video script
-│
-└── examples/
-    ├── detection_output.json         # Sample Detection response
-    ├── reviewer_output.json          # Sample Reviewer response
-    └── workflow_execution.json       # Sample workflow result
+│├── Detetion-agent.md         #
+│├── Review-Agent.md     
+│├── Workflow.md               
 ```
 
 ---
@@ -449,23 +403,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **Alpha**  
 Founder, Neonpay | Compliance Automation Enthusiast
 
-- GitHub: [@yourusername](https://github.com/yourusername)
-- LinkedIn: [Your LinkedIn](https://linkedin.com/in/yourprofile)
-- Email: your.email@example.com
-
----
-
-## 📞 Support
-
-**Questions about RegWatch?**
-- 📧 Email: regwatch@yourcompany.com
-- 💬 Discussions: [GitHub Discussions](https://github.com/yourusername/regwatch/discussions)
-- 🐛 Issues: [GitHub Issues](https://github.com/yourusername/regwatch/issues)
-
-**Questions about Elastic Agent Builder?**
-- 📚 Docs: https://docs.elastic.co/agent-builder
-- 💬 Community: https://discuss.elastic.co
-
+- GitHub: [@yourusername](https://github.com/jash777)
+- Email: name.jashuva@gmail.com
 ---
 
 ## ⭐ Star History
@@ -496,7 +435,7 @@ If you find RegWatch useful, please consider starring the repository!
 
 **Built with ❤️ using Elastic Stack**
 
-[View Demo](https://youtu.be/YOUR_VIDEO) • [Report Bug](https://github.com/yourusername/regwatch/issues) • [Request Feature](https://github.com/yourusername/regwatch/issues)
+[View Demo](https://youtu.be/82SnRw6onUY) • [Report Bug](https://github.com/jash777/regwatch/issues) • [Request Feature](https://github.com/jash777/regwatch/issues)
 
 </div>
 
@@ -505,16 +444,13 @@ If you find RegWatch useful, please consider starring the repository!
 ## 📸 Screenshots
 
 ### Dashboard Overview
-![Dashboard](docs/images/dashboard.png)
-
-### Agent Disagreement Detection
-![Disagreement](docs/images/disagreement.png)
+![Dashboard](dashboard.png)
 
 ### Workflow Execution
-![Workflow](docs/images/workflow.png)
+![Workflow](workflow.png)
 
 ### Slack Notifications
-![Slack](docs/images/slack.png)
+![Slack](slack-notify.png)
 
 ---
 
