@@ -145,7 +145,6 @@ Most AI systems hide uncertainty. RegWatch **embraces it**.
 
 **Integrations:**
 - Slack API
-- Email (SMTP)
 - Webhooks
 
 ---
