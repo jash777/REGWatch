@@ -411,7 +411,7 @@ Founder, Neonpay | Compliance Automation Enthusiast
 
 If you find RegWatch useful, please consider starring the repository!
 
-[![Star History Chart](https://api.star-history.com/svg?repos=yourusername/regwatch&type=Date)](https://star-history.com/#yourusername/regwatch&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=jash777/REGWatch&type=date&legend=top-left)](https://www.star-history.com/#jash777/REGWatch&type=date&legend=top-left)
 
 ---
 
